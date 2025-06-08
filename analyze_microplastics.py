@@ -18,22 +18,45 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
         category (str): 'Low', 'Medium', or 'High'
     """
     # Load image
-    img = cv2.imread(image_path)
+    image = cv2.imread(image_path)
+    
+    print("Processing image for solvatochromic microplastics...")
 
-    print("Processing image for microplastics...")
+    # Convert to HSV (Hue, Saturation, Value) color space
+    # It separates color information (hue) from intensity (value), making it easier to isolate specific colors.
+    # This allows us to create masks based on specific color ranges.
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    fig, axes = plt.subplots(2, 3, figsize=(16, 8))
+    # Define solvatochromic hue ranges
+    # These ranges are based on the expected fluorescence emission of solvatochromic dyes like Nile Red.
+    # The ranges are defined in HSV color space, where:
+    #   H: Hue (color type)
+    #   S: Saturation (color intensity)
+    #   V: Value (brightness)
+    # The ranges are defined as tuples of (lower_bound, upper_bound) for each color.
+    color_ranges = {
+        "red":    [(0, 50, 50), (10, 255, 255)],
+        "orange": [(11, 50, 50), (25, 255, 255)],
+        "yellow": [(26, 50, 50), (35, 255, 255)],
+        "green":  [(36, 50, 50), (85, 255, 255)]
+    }
 
-    axes[0, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    axes[0, 0].set_title("Original image")
-    axes[0, 0].axis('off')
+    # Create masks for each color range
+    # cv2.inRange(src, lowerb, upperb) creates a binary mask where pixels within the specified range are set to 255 (white),
+    # and pixels outside the range are set to 0 (black).
+    # The masks are combined to create a final mask that highlights all the relevant colors.
+    final_mask = np.zeros_like(hsv[:, :, 0])
+    masks = {}
 
-    # Extract red channel (Nile Red emits in red)
-    red = img[:, :, 2]
+    for name, (lower, upper) in color_ranges.items():
+        lower = np.array(lower)
+        upper = np.array(upper)
+        mask = cv2.inRange(hsv, lower, upper)
+        masks[name] = mask
+        final_mask = cv2.bitwise_or(final_mask, mask)
 
-    axes[0, 1].imshow(red)
-    axes[0, 1].set_title("Red channel")
-    axes[0, 1].axis('off')
+    # Red + Orange mask
+    red_orange_mask = cv2.bitwise_or(masks["red"], masks["orange"])
 
     # Blur to reduce noise.
     # Fluorescence images often have speckle noise or small bright pixels not related to microplastics.
@@ -41,11 +64,7 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     # Sharp edges or pixel spikes can confuse the thresholding process.
     # Threshold algorithms (like Otsu’s method) work better when the image is smoothed.
     # It helps ensure that true signals (plastics) stand out from background variations.
-    blurred = cv2.GaussianBlur(red, (5, 5), 0)
-
-    axes[0, 2].imshow(blurred)
-    axes[0, 2].set_title("Blurred image")
-    axes[0, 2].axis('off')
+    blurred = cv2.GaussianBlur(final_mask, (5, 5), 0)
 
     # Threshold (Otsu’s method)
     # Otsu's method automatically determines a threshold value to separate foreground from background.
@@ -66,10 +85,6 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     cleaned = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
 
-    axes[1, 0].imshow(cleaned)
-    axes[1, 0].set_title("Cleaned image")
-    axes[1, 0].axis('off')
-
     # Find contours
     # cv2.findContours(image, mode, method) detects contours in a binary image.
     #   mode: cv2.RETR_EXTERNAL retrieves only the outer contours (useful for counting particles)
@@ -79,7 +94,14 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     # The second return value is the hierarchy of contours, which we don't need here.
     contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    print(f"Found {len(contours)} contours.")
+    # Count valid particles
+    count = 0
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if min_area < area < max_area:
+            count += 1
+
+    category = "Low" if count < low_thresh else "Medium" if count < high_thresh else "High"
 
     # Draw contours on the cleaned image
     # This step visualizes the detected contours on the cleaned image.
@@ -89,33 +111,36 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     #   contourIdx: -1 means draw all contours; you can specify an index to draw a specific contour
     #   color: color of the contours (green in this case)
     #   thickness: thickness of the contour lines in pixels
-    contour_img = img.copy()
-    cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 2)
+    contour_img = image.copy()
+    cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 1)
 
-    # Display the contours on the original image, with colour conversion for proper visualization
-    axes[1, 1].imshow(cv2.cvtColor(contour_img, cv2.COLOR_BGR2RGB))
-    axes[1, 1].set_title("Contours detected")
+    # Visualize
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+    axes[0, 0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    axes[0, 0].set_title("Original image")
+    axes[0, 0].axis('off')
+
+    axes[0, 1].imshow(red_orange_mask, cmap='gray')
+    axes[0, 1].set_title("Red + orange channels")
+    axes[0, 1].axis('off')
+
+    axes[0, 2].imshow(final_mask, cmap='gray')
+    axes[0, 2].set_title("All hue channel ranges")
+    axes[0, 2].axis('off')
+
+    axes[1, 0].imshow(blurred, cmap='gray')
+    axes[1, 0].set_title("Blurred image")
+    axes[1, 0].axis('off')
+
+    axes[1, 1].imshow(cleaned, cmap='gray')
+    axes[1, 1].set_title("Cleaned image")
     axes[1, 1].axis('off')
-    
 
-    # Count valid particles
-    count = 0
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        if min_area < area < max_area:
-            count += 1
+    axes[1, 2].imshow(cv2.cvtColor(contour_img, cv2.COLOR_BGR2RGB))
+    axes[1, 2].set_title("Contours detected")
+    axes[1, 2].axis('off')
 
-    # Categorize result
-    if count < low_thresh:
-        category = "Low"
-    elif count < high_thresh:
-        category = "Medium"
-    else:
-        category = "High"
-
-    print(f"Detected particles: {count} → Category: {category}")
-
-    plt.suptitle("Process of image processing", fontsize=14)
+    plt.suptitle(f"Detected particles: {count} → Category: {category}", fontsize=14)
     plt.tight_layout()
     plt.show()
 
@@ -123,6 +148,6 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
 
 if __name__ == "__main__":
     # Example usage
-    image_file = "test_image_3.jpg"
+    image_file = "./test-images/test_image_9.jpg"
     count, level = analyze_microplastics(image_file)
     print(f"Detected particles: {count} → Category: {level}")
