@@ -29,11 +29,11 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
 
     # Define solvatochromic hue ranges
     # These ranges are based on the expected fluorescence emission of solvatochromic dyes like Nile Red.
-    # The ranges are defined in HSV color space, where:
-    #   H: Hue (color type)
-    #   S: Saturation (color intensity)
-    #   V: Value (brightness)
-    # The ranges are defined as tuples of (lower_bound, upper_bound) for each color.
+    # The ranges are defined in HSV color space of (lower_bound, upper_bound), where:
+    #   H: Hue of 0-179 (color type)
+    #   S: Saturation of 0-255 (color intensity)
+    #   V: Value of 0-255 (brightness)
+    # 50 is a common threshold for Saturation and Value to ensure we are detecting bright colors.
     color_ranges = {
         "red":    [(0, 50, 50), (10, 255, 255)],
         "orange": [(11, 50, 50), (25, 255, 255)],
@@ -48,7 +48,9 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     final_mask = np.zeros_like(hsv[:, :, 0])
     masks = {}
 
+    # Iterate through each color range and create a mask
     for name, (lower, upper) in color_ranges.items():
+        # Convert lower and upper bounds to numpy arrays for cv2.inRange
         lower = np.array(lower)
         upper = np.array(upper)
         mask = cv2.inRange(hsv, lower, upper)
@@ -148,6 +150,6 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
 
 if __name__ == "__main__":
     # Example usage
-    image_file = "./test-images/test_image_9.jpg"
+    image_file = "./test-images/test_image_3.jpg"
     count, level = analyze_microplastics(image_file)
     print(f"Detected particles: {count} → Category: {level}")
