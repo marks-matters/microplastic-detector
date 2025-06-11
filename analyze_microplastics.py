@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
-def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10, high_thresh=30):
+def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10, high_thresh=30, show_plot=True):
     """
     Analyze a fluorescence image for microplastic particles.
 
@@ -12,15 +13,38 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
         max_area (int): Maximum contour area to count.
         low_thresh (int): Max count for 'Low' classification.
         high_thresh (int): Max count for 'Medium' classification.
+        show_plot (bool): Whether to display the visualization plot.
 
     Returns:
         particle_count (int): Number of detected particles.
         category (str): 'Low', 'Medium', or 'High'
+
+    Raises:
+        ValueError: If min_area > max_area or if thresholds are invalid
+        FileNotFoundError: If the image file doesn't exist
     """
+    # Input validation
+    if min_area > max_area:
+        raise ValueError("min_area cannot be greater than max_area")
+    
+    # Ensure non-negative areas
+    min_area = max(0, min_area)
+    max_area = max(0, max_area)
+    
+    # Ensure thresholds are non-negative and properly ordered
+    low_thresh = max(0, low_thresh)
+    high_thresh = max(low_thresh, high_thresh)
+
+    # Check if file exists
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image file not found: {image_path}")
+
     # Load image
     image = cv2.imread(image_path)
-    
-    print("Processing image for solvatochromic microplastics...")
+    if image is None:
+        raise ValueError(f"Failed to load image: {image_path}")
+
+    print("Processing image for microplastics...")
 
     # Convert to HSV (Hue, Saturation, Value) color space
     # It separates color information (hue) from intensity (value), making it easier to isolate specific colors.
@@ -116,35 +140,36 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     contour_img = image.copy()
     cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 1)
 
-    # Visualize
-    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
-    axes[0, 0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    axes[0, 0].set_title("Original image")
-    axes[0, 0].axis('off')
+    # Visualize only if show_plot is True
+    if show_plot:
+        fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+        axes[0, 0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        axes[0, 0].set_title("Original image")
+        axes[0, 0].axis('off')
 
-    axes[0, 1].imshow(red_orange_mask, cmap='gray')
-    axes[0, 1].set_title("Red + orange channels")
-    axes[0, 1].axis('off')
+        axes[0, 1].imshow(red_orange_mask, cmap='gray')
+        axes[0, 1].set_title("Red + orange channels")
+        axes[0, 1].axis('off')
 
-    axes[0, 2].imshow(final_mask, cmap='gray')
-    axes[0, 2].set_title("All hue channel ranges")
-    axes[0, 2].axis('off')
+        axes[0, 2].imshow(final_mask, cmap='gray')
+        axes[0, 2].set_title("All hue channel ranges")
+        axes[0, 2].axis('off')
 
-    axes[1, 0].imshow(blurred, cmap='gray')
-    axes[1, 0].set_title("Blurred image")
-    axes[1, 0].axis('off')
+        axes[1, 0].imshow(blurred, cmap='gray')
+        axes[1, 0].set_title("Blurred image")
+        axes[1, 0].axis('off')
 
-    axes[1, 1].imshow(cleaned, cmap='gray')
-    axes[1, 1].set_title("Cleaned image")
-    axes[1, 1].axis('off')
+        axes[1, 1].imshow(cleaned, cmap='gray')
+        axes[1, 1].set_title("Cleaned image")
+        axes[1, 1].axis('off')
 
-    axes[1, 2].imshow(cv2.cvtColor(contour_img, cv2.COLOR_BGR2RGB))
-    axes[1, 2].set_title("Contours detected")
-    axes[1, 2].axis('off')
+        axes[1, 2].imshow(cv2.cvtColor(contour_img, cv2.COLOR_BGR2RGB))
+        axes[1, 2].set_title("Contours detected")
+        axes[1, 2].axis('off')
 
-    plt.suptitle(f"Detected particles: {count} → Category: {category}", fontsize=14)
-    plt.tight_layout()
-    plt.show()
+        plt.suptitle(f"Detected particles: {count} → Category: {category}", fontsize=14)
+        plt.tight_layout()
+        plt.show()
 
     return count, category
 
