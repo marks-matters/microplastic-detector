@@ -1,4 +1,5 @@
 numpy
 matplotlib
+gpiozero
 # OpenCV is best installed via apt, not pip, due to build complexity
 # opencv-python (install on a Raspberry Pi with: sudo apt install python3-opencv)

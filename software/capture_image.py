@@ -14,3 +14,7 @@ def capture_image(output_dir="captures"):
         raise RuntimeError("Image capture failed. Check camera connection and permissions.")
     
     return image_path
+
+if __name__ == "__main__":
+    image_path = capture_image()
+    print(f"Image captured successfully: {image_path}")

@@ -19,6 +19,7 @@ A Python-based tool for analyzing fluorescence images to detect and categorize m
 - NumPy
 - Matplotlib
 - pytest (for running tests)
+- gpiozero
 
 ## Setup Instructions
 
@@ -91,6 +92,10 @@ A Python-based tool for analyzing fluorescence images to detect and categorize m
 
 To analyze a single image:
 
+```bash
+python -m software.analyze_microplastics --image_path image_name.jpg --show_image_processing
+```
+
 ```python
 from software.analyze_microplastics import analyze_microplastics
 
@@ -100,11 +105,11 @@ count, category = analyze_microplastics("path/to/your/image.jpg")
 # Advanced usage with all parameters
 count, category = analyze_microplastics(
     image_path="path/to/your/image.jpg",
-    min_area=10,          # Minimum particle size in pixels
-    max_area=5000,        # Maximum particle size in pixels
-    low_thresh=10,        # Threshold for "Low" category
-    high_thresh=30,       # Threshold for "Medium" category
-    show_image_processing=True        # Whether to display visualization
+    min_area=10,                 # Minimum particle size in pixels
+    max_area=5000,               # Maximum particle size in pixels
+    low_thresh=10,               # Threshold for "Low" category
+    high_thresh=30,              # Threshold for "Medium" category
+    show_image_processing=False  # Whether to display visualization
 )
 
 print(f"Detected particles: {count}")
@@ -118,7 +123,7 @@ print(f"Concentration category: {category}")
 - `max_area`: Maximum particle area to count (default: 5000 pixels)
 - `low_thresh`: Maximum particle count for "Low" classification (default: 10)
 - `high_thresh`: Maximum particle count for "Medium" classification (default: 30)
-- `show_image_processing`: Whether to display visualization plots (default: True)
+- `show_image_processing`: Whether to display visualization plots (default: False)
 
 ### Return Values
 
