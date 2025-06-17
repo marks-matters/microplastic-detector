@@ -38,15 +38,75 @@ A Python-based tool for analyzing fluorescence images to detect and categorize m
    pip install opencv-python numpy matplotlib pytest
    ```
 
+### Setup Instructions for Raspberry Pi
+
+0. Setup Raspberry Pi and install the camera:
+   ```bash
+   ssh admin@microplastics.local
+   sudo raspi-config
+   ```
+
+   Go to:
+
+   >   Interface Options → Camera → Enable
+
+   Reboot:
+   ```bash
+   sudo reboot
+   ```
+
+1. Update `apt` and install dependencies `venv` and `opencv`:
+   ```bash
+   sudo apt update
+   sudo apt install python3-venv python3-opencv -y
+   ```
+
+2. Set up project file and environment:
+   ```bash
+   cd ~
+   mkdir mp-proj
+   cd ~/mp-proj
+   python3 -m venv --system-site-packages ~/mp-proj/mp-env
+   python3 -m venv mp-env
+   ```
+
+3. Transfer files to the Raspberry Pi:
+   ```bash
+   scp -r software admin@microplastics-ui.local:~/mp-proj/
+   ```
+
+4. Activate the virtual environment and install the required packages:
+   ```bash
+   cd ~/mp-proj
+   source mp-env/bin/activate
+   pip install -r software/requirements.txt
+   ```
+
+5. Run the python script
+   ```bash
+   python -m software.main
+   ```
+
 ## Usage
 
 To analyze a single image:
 
 ```python
-from analyze_microplastics import analyze_microplastics
+from software.analyze_microplastics import analyze_microplastics
 
-# Analyze an image
+# Basic usage
 count, category = analyze_microplastics("path/to/your/image.jpg")
+
+# Advanced usage with all parameters
+count, category = analyze_microplastics(
+    image_path="path/to/your/image.jpg",
+    min_area=10,          # Minimum particle size in pixels
+    max_area=5000,        # Maximum particle size in pixels
+    low_thresh=10,        # Threshold for "Low" category
+    high_thresh=30,       # Threshold for "Medium" category
+    show_plot=True        # Whether to display visualization
+)
+
 print(f"Detected particles: {count}")
 print(f"Concentration category: {category}")
 ```
@@ -60,27 +120,43 @@ print(f"Concentration category: {category}")
 - `high_thresh`: Maximum particle count for "Medium" classification (default: 30)
 - `show_plot`: Whether to display visualization plots (default: True)
 
+### Return Values
+
+Returns a tuple containing:
+1. `count` (int): Number of detected particles
+2. `category` (str): Concentration category ("Low", "Medium", or "High")
+
 ## Testing
 
-The project includes a comprehensive test suite. To run the tests:
+The project includes comprehensive test suites for all components. To run the tests:
 
 1. Ensure you're in the virtual environment:
    ```bash
    source microplastics-env/bin/activate
    ```
-2. Run the tests:
+
+2. Run all tests:
    ```bash
-   pytest test_analyze_microplastics.py
+   pytest tests/ -v
+   ```
+
+3. Run specific test files:
+   ```bash
+   pytest tests/test_analyze_microplastics.py -v  # Analysis tests
+   pytest tests/test_capture_image.py -v          # Image capture tests
+   pytest tests/test_main.py -v                   # Main pipeline tests
    ```
 
 Additional test options:
-- Use `-v` for verbose output: `pytest test_analyze_microplastics.py -v`
-- Run specific tests: `pytest test_analyze_microplastics.py -k "area"`
-- Show print statements: `pytest test_analyze_microplastics.py -s`
+- Use `-v` for verbose output
+- Run specific tests: `pytest tests/test_capture_image.py -k "failure"`
+- Show print statements: `pytest tests/ -s`
 
 ## Test Coverage
 
 The test suite covers:
+
+### Analysis Module
 - Basic functionality and return types
 - Threshold handling
 - Area filtering
@@ -88,6 +164,17 @@ The test suite covers:
 - Input validation
 - File handling
 - Result consistency
+
+### Image Capture Module
+- Directory creation
+- File naming conventions
+- Error handling
+- Hardware failure scenarios
+
+### Main Pipeline
+- Integration tests
+- End-to-end workflow
+- Error propagation
 
 ## Contributing
 

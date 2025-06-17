@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -174,7 +175,20 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     return count, category
 
 if __name__ == "__main__":
-    # Example usage
-    image_file = "./test-images/test_image_3.jpg"
-    count, level = analyze_microplastics(image_file)
+    parser = argparse.ArgumentParser(description="Analyze a captured image for microplastics")
+    parser.add_argument(
+        "--no-show_plot",
+        dest="show_plot",
+        action="store_false",
+        help="Disable the display of matplotlib visualization"
+    )
+    parser.add_argument(
+        "--image_path",
+        type=str,
+        default="./tests/test-images/test_image_1.jpg",
+        help="Path to the input image"
+    )
+    args = parser.parse_args()
+
+    count, level = analyze_microplastics(args.image_path, show_plot=args.show_plot)
     print(f"Detected particles: {count} → Category: {level}")
