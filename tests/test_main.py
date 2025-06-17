@@ -21,4 +21,4 @@ def test_run_capture_and_analysis():
         
         # Verify calls
         mock_capture.assert_called_once()
-        mock_analyze.assert_called_once_with("test_image.jpg", show_plot=False)
+        mock_analyze.assert_called_once_with("test_image.jpg")

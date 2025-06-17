@@ -104,7 +104,7 @@ count, category = analyze_microplastics(
     max_area=5000,        # Maximum particle size in pixels
     low_thresh=10,        # Threshold for "Low" category
     high_thresh=30,       # Threshold for "Medium" category
-    show_plot=True        # Whether to display visualization
+    show_image_processing=True        # Whether to display visualization
 )
 
 print(f"Detected particles: {count}")
@@ -118,7 +118,7 @@ print(f"Concentration category: {category}")
 - `max_area`: Maximum particle area to count (default: 5000 pixels)
 - `low_thresh`: Maximum particle count for "Low" classification (default: 10)
 - `high_thresh`: Maximum particle count for "Medium" classification (default: 30)
-- `show_plot`: Whether to display visualization plots (default: True)
+- `show_image_processing`: Whether to display visualization plots (default: True)
 
 ### Return Values
 

@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10, high_thresh=30, show_plot=True):
+def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10, high_thresh=30, show_image_processing=False):
     """
     Analyze a fluorescence image for microplastic particles.
 
@@ -14,7 +14,7 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
         max_area (int): Maximum contour area to count.
         low_thresh (int): Max count for 'Low' classification.
         high_thresh (int): Max count for 'Medium' classification.
-        show_plot (bool): Whether to display the visualization plot.
+        show_image_processing (bool): Whether to display the visualization plot.
 
     Returns:
         particle_count (int): Number of detected particles.
@@ -141,8 +141,8 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     contour_img = image.copy()
     cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 1)
 
-    # Visualize only if show_plot is True
-    if show_plot:
+    # Visualize only if show_image_processing is True
+    if show_image_processing:
         fig, axes = plt.subplots(2, 3, figsize=(16, 10))
         axes[0, 0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         axes[0, 0].set_title("Original image")
@@ -177,9 +177,8 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Analyze a captured image for microplastics")
     parser.add_argument(
-        "--no-show_plot",
-        dest="show_plot",
-        action="store_false",
+        "--show_image_processing",
+        action="store_true",
         help="Disable the display of matplotlib visualization"
     )
     parser.add_argument(
@@ -190,5 +189,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    count, level = analyze_microplastics(args.image_path, show_plot=args.show_plot)
+    count, level = analyze_microplastics(args.image_path, show_image_processing=args.show_image_processing)
     print(f"Detected particles: {count} → Category: {level}")
