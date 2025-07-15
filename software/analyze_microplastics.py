@@ -52,25 +52,30 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     # This allows us to create masks based on specific color ranges.
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    # Define solvatochromic hue ranges
+    ''' Define solvatochromic hue ranges '''
     # These ranges are based on the expected fluorescence emission of solvatochromic dyes like Nile Red.
     # The ranges are defined in HSV color space of (lower_bound, upper_bound), where:
     #   H: Hue of 0-179 (color type)
     #   S: Saturation of 0-255 (color intensity)
     #   V: Value of 0-255 (brightness)
     # 50 is a common threshold for Saturation and Value to ensure we are detecting bright colors.
+    # Values in experiment:
+    #   Excitation source: LED GREEN DIFFUSED 3MM ROUND T/H with peak @ 560 nm
+    #   Emission filter LEE 134 Golden Amber: 580 nm long-pass filter
+    #   Nile Red: Ex: 510-550 nm; Em: 580-640 nm
     color_ranges = {
-        "red":    [(0, 50, 50), (10, 255, 255)],
-        "orange": [(11, 50, 50), (25, 255, 255)],
-        "yellow": [(26, 50, 50), (35, 255, 255)],
-        "green":  [(36, 50, 50), (85, 255, 255)]
+        "deep_red": [(160, 50, 50), (179, 255, 255)],   # 650→621 nm
+        "red":      [(0, 50, 50), (10, 255, 255)],      # 620→590 nm
+        "orange":   [(11, 50, 50), (25, 255, 255)],     # 589→561 nm
+        # "yellow":   [(26, 50, 50), (35, 255, 255)],     # 560→511 nm
+        # "green":    [(36, 50, 50), (85, 255, 255)]      # 510→450 nm
     }
 
     # Create masks for each color range
     # cv2.inRange(src, lowerb, upperb) creates a binary mask where pixels within the specified range are set to 255 (white),
     # and pixels outside the range are set to 0 (black).
-    # The masks are combined to create a final mask that highlights all the relevant colors.
-    final_mask = np.zeros_like(hsv[:, :, 0])
+    # The masks are combined to create a full mask that highlights all the relevant colors.
+    full_mask = np.zeros_like(hsv[:, :, 0])
     masks = {}
 
     # Iterate through each color range and create a mask
@@ -80,20 +85,27 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
         upper = np.array(upper)
         mask = cv2.inRange(hsv, lower, upper)
         masks[name] = mask
-        final_mask = cv2.bitwise_or(final_mask, mask)
+        full_mask = cv2.bitwise_or(full_mask, mask)
 
-    # Red + Orange mask
-    red_orange_mask = cv2.bitwise_or(masks["red"], masks["orange"])
+    # Deep red + red masks
+    reds_mask = cv2.bitwise_or(masks["deep_red"], masks["red"])
 
-    # Blur to reduce noise.
+    ''' Blur to reduce noise '''
     # Fluorescence images often have speckle noise or small bright pixels not related to microplastics.
     # Blurring helps smooth out these high-frequency artifacts before thresholding.
     # Sharp edges or pixel spikes can confuse the thresholding process.
     # Threshold algorithms (like Otsu’s method) work better when the image is smoothed.
     # It helps ensure that true signals (plastics) stand out from background variations.
-    blurred = cv2.GaussianBlur(final_mask, (5, 5), 0)
+    # cv2.GaussianBlur(src, ksize, sigmaX) applies a Gaussian blur to the image.
+    #   src: source image
+    #   ksize: size of the Gaussian kernel
+    #       An odd integer tuple, e.g., (5, 5)
+    #       Determines the extent of blurring; larger values result in more blur.
+    #       A kernel size of (5, 5) is a common choice for moderate blurring.
+    #   sigmaX: standard deviation in the X direction (0 means it is calculated based on ksize)
+    blurred = cv2.GaussianBlur(full_mask, (5, 5), 0)
 
-    # Threshold (Otsu’s method)
+    ''' Threshold (Otsu’s method) '''
     # Otsu's method automatically determines a threshold value to separate foreground from background.
     # It is particularly useful for images with bimodal histograms, like fluorescence images.
     # cv2.threshold(src, thresh_value, max_value, method)
@@ -103,16 +115,20 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     #   THRESH_OTSU: automatically calculates the optimal threshold to separate foreground from background based on image histogram
     _, binary = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    # Morphological cleanup
+    ''' Morphological cleanup '''
     # Morphological operations help remove small noise and enhance the structure of detected particles.
     # cv2.getStructuringElement(shape, ksize) creates a structuring element for morphological operations.
     #   shape: cv2.MORPH_ELLIPSE, which creates an elliptical structuring element, which is effective for circular particles.
     #   ksize: size of the structuring element (3x3 in this case)
-    # cv2.MORPH_OPEN: removes small objects from the foreground (noise) while preserving larger structures.
+    # cv2.morphologyEx(src, op, kernel) applies a morphological operation to the image.
+    #   src: source image (binary mask)
+    #   op: morphological operation to apply
+    #       cv2.MORPH_OPEN: removes small objects from the foreground (noise) while preserving larger structures.
+    #   kernel: structuring element created above
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     cleaned = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
 
-    # Find contours
+    ''' Find contours '''
     # cv2.findContours(image, mode, method) detects contours in a binary image.
     #   mode: cv2.RETR_EXTERNAL retrieves only the outer contours (useful for counting particles)
     #   method: cv2.CHAIN_APPROX_SIMPLE compresses horizontal, vertical, and diagonal segments and leaves only their endpoints.
@@ -123,37 +139,39 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
 
     # Count valid particles
     count = 0
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
+    for shape in contours:
+        area = cv2.contourArea(shape)
         if min_area < area < max_area:
             count += 1
 
     category = "Low" if count < low_thresh else "Medium" if count < high_thresh else "High"
 
-    # Draw contours on the cleaned image
-    # This step visualizes the detected contours on the cleaned image.
-    # cv2.drawContours(image, contours, contourIdx, color, thickness)
-    #   image: the image on which to draw the contours
-    #   contours: list of contours to draw
-    #   contourIdx: -1 means draw all contours; you can specify an index to draw a specific contour
-    #   color: color of the contours (green in this case)
-    #   thickness: thickness of the contour lines in pixels
-    contour_img = image.copy()
-    cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 1)
 
-    # Visualize only if show_image_processing is True
+    ''' Visualize only if show_image_processing is True '''
     if show_image_processing:
+        ''' Draw contours on the cleaned image '''
+        # This step visualizes the detected contours on the cleaned image.
+        # cv2.drawContours(image, contours, contourIdx, color, thickness)
+        #   image: the image on which to draw the contours
+        #   contours: list of contours to draw
+        #   contourIdx: -1 means draw all contours; you can specify an index to draw a specific contour
+        #   color: color of the contours (green in this case)
+        #   thickness: thickness of the contour lines in pixels
+        contour_img = image.copy()
+        cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 1)
+        
+        # Create a 2x3 grid of subplots
         fig, axes = plt.subplots(2, 3, figsize=(16, 10))
         axes[0, 0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         axes[0, 0].set_title("Original image")
         axes[0, 0].axis('off')
 
-        axes[0, 1].imshow(red_orange_mask, cmap='gray')
-        axes[0, 1].set_title("Red + orange channels")
+        axes[0, 1].imshow(reds_mask, cmap='gray')
+        axes[0, 1].set_title("Red channels")
         axes[0, 1].axis('off')
 
-        axes[0, 2].imshow(final_mask, cmap='gray')
-        axes[0, 2].set_title("All hue channel ranges")
+        axes[0, 2].imshow(full_mask, cmap='gray')
+        axes[0, 2].set_title("All filter channels")
         axes[0, 2].axis('off')
 
         axes[1, 0].imshow(blurred, cmap='gray')
