@@ -43,7 +43,7 @@ A Python-based tool for analyzing fluorescence images to detect and categorize m
 
 0. Setup Raspberry Pi and install the camera:
    ```bash
-   ssh admin@microplastics.local
+   sudo ssh admin@microplastics-ui.local
    sudo raspi-config
    ```
 
@@ -73,7 +73,7 @@ A Python-based tool for analyzing fluorescence images to detect and categorize m
 
 3. Transfer files to the Raspberry Pi:
    ```bash
-   scp -r software admin@microplastics-ui.local:~/mp-proj/
+   sudo scp -r software admin@microplastics-ui.local:~/mp-proj/
    ```
 
 4. Activate the virtual environment and install the required packages:
@@ -180,6 +180,15 @@ The test suite covers:
 - Integration tests
 - End-to-end workflow
 - Error propagation
+
+## Useful functions
+
+To copy a file from the Raspberry Pi back to your local machine, use:
+
+/home/admin/mp-proj/captures
+```bash
+sudo scp admin@microplastics-ui.local:/home/admin/mp-proj/captures/sample_20250801_225616.jpg ./captures/
+```
 
 ## Contributing
 
