@@ -56,6 +56,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             ))}
           </div>
 
+          <div className="bg-red-500 text-white p-4">
+            If you see red, Tailwind is working.
+          </div>
+
           <Card className="p-8 text-center">
             <div className="mb-6 flex justify-center">
               {steps[currentStep].icon}

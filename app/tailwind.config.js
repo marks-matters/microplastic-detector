@@ -4,14 +4,17 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // or 'media' if you want to use system preferences
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
-        primary: 'var(--primary)',
-        // ...add other custom colors
+        primary: ({ opacityVariable, opacityValue }) =>
+          `rgba(var(--primary), ${opacityValue ?? `var(${opacityVariable}, 1)`})`,
+      },
+      borderColor: {
+        border: 'var(--border)',
       }
     },
   },
