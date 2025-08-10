@@ -9,12 +9,23 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
+        // Solid primary badge
         default:
           "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        // Neutral/tag style
         secondary:
           "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        // Subtle status badges using theme tokens (accessible in light/dark)
+        success:
+          "bg-success/12 border-success/20 text-success dark:bg-success/20 dark:border-success/30 dark:text-success",
+        warning:
+          "bg-warning/12 border-warning/20 text-warning dark:bg-warning/20 dark:border-warning/30 dark:text-warning",
+        info:
+          "bg-info/12 border-info/20 text-info dark:bg-info/20 dark:border-info/30 dark:text-info",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive/12 border-destructive/20 text-destructive dark:bg-destructive/20 dark:border-destructive/30 dark:text-destructive",
+        muted:
+          "bg-muted text-muted-foreground border-border/40 dark:bg-muted/60 dark:text-foreground/80 dark:border-border/30",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },

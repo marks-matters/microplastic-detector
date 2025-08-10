@@ -188,7 +188,7 @@ export function AccountTab({ user, isLoggedIn, onLogout }: AccountTabProps) {
         </Card>
 
         {/* App Info */}
-        <Card className="p-4">
+        <Card className="p-4 -border/0">
           <div className="text-center text-sm text-muted-foreground">
             <p>MicroDetect v1.2.0</p>
             <p>© 2025 Environmental Solutions Inc.</p>

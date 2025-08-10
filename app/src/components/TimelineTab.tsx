@@ -67,17 +67,16 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
     }
   ]);
 
-  const getRatingColor = (rating: string) => {
-    // Use theme tokens for consistent light/dark behavior
+  const getRatingVariant = (rating: string) => {
     switch (rating) {
       case 'low':
-        return 'bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success-foreground/90 dark:border-success/30';
+        return 'success';
       case 'medium':
-        return 'bg-warning/10 text-warning-foreground border-warning/20 dark:bg-warning/20 dark:text-warning-foreground/90 dark:border-warning/30';
+        return 'warning';
       case 'high':
-        return 'bg-destructive/10 text-destructive-foreground border-destructive/20 dark:bg-destructive/20 dark:text-destructive-foreground/90 dark:border-destructive/30';
+        return 'destructive';
       default:
-        return 'bg-accent/20 text-foreground border-border/40 dark:bg-accent/10 dark:text-foreground/90 dark:border-border/30';
+        return 'secondary';
     }
   };
 
@@ -96,7 +95,7 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
 
       {/* New Measurement Button */}
       <div className="p-4 m-[0px]">
-        <Button className="w-full bg-[rgba(15,118,110,1)] text-[rgba(255,255,255,1)] border border-primary/20 shadow-sm hover:bg-gray-50 rounded-[12px] text-[12px]">
+        <Button className="w-full bg-primary text-primary-foreground border border-primary/20 shadow-sm hover:bg-primary/90">
           <Plus className="w-4 h-4 mr-2" />
           Start New Measurement
         </Button>
@@ -105,14 +104,14 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
       {/* Timeline */}
       <div className="p-4 space-y-4">
         {measurements.map((measurement, index) => (
-          <Card key={measurement.id} className="p-4 border-primary/10">
+          <Card key={measurement.id} className="p-4 border">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">{measurement.date}</span>
                 <span className="text-sm text-muted-foreground">{measurement.time}</span>
               </div>
-              <Badge className={getRatingColor(measurement.rating)}>
+              <Badge variant={getRatingVariant(measurement.rating)}>
                 {measurement.rating.toUpperCase()}
               </Badge>
             </div>
@@ -130,7 +129,7 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
             {measurement.image && (
               <div className="mb-3">
                 <ImageWithFallback
-                  src={null} // Placeholder for image source
+                  src={undefined} // Placeholder for image source
                   alt={measurement.image}
                   className="w-full h-32 object-cover rounded-md"
                 />
@@ -143,7 +142,7 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
 
             <div className="flex flex-wrap gap-2">
               {measurement.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs bg-secondary/50 text-secondary-foreground border-secondary/20">
+                <Badge key={tag} variant="muted" className="text-xs">
                   #{tag}
                 </Badge>
               ))}
