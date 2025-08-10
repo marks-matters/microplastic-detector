@@ -27,9 +27,9 @@ export function DeviceHealthTab() {
     battery: 78,
     temperature: 23,
     lastSync: "2 minutes ago",
-    wasteLevel: 65,
-    dyeLevel: 40,
-    filterPaper: 25,
+    wasteLevel: 85,
+    dyeLevel: 85,
+    filterPaper: 1,
   };
 
   const dismissAlert = (alertId: string) => {
@@ -38,89 +38,111 @@ export function DeviceHealthTab() {
 
   // For waste bin: higher percentage = worse (more full)
   const getWasteStatusColor = (level: number) => {
-    if (level > 70) return "text-red-600";
-    if (level > 50) return "text-amber-600";
-    return "text-emerald-600";
+    if (level > 98) return "text-destructive";
+    if (level > 60) return "text-warning";
+    return "text-success";
   };
 
   const getWasteProgressColor = (level: number) => {
-    if (level > 70) return "bg-red-500";
-    if (level > 50) return "bg-amber-500";
-    return "bg-emerald-500";
+    if (level > 98) return "bg-destructive";
+    if (level > 60) return "bg-warning";
+    return "bg-success";
   };
 
   const getWasteStatus = (level: number) => {
-    if (level > 70)
+    if (level > 98)
+      return {
+        text: "Full - Please empty before a new sample can be analysed",
+        icon: <AlertCircle className="w-4 h-4 text-destructive" />,
+      };
+    if (level > 75)
       return {
         text: "Needs emptying soon",
-        icon: <AlertCircle className="w-4 h-4 text-red-500" />,
+        icon: <AlertCircle className="w-4 h-4 text-warning" />,
       };
-    if (level > 50)
+    if (level > 60)
       return {
         text: "Getting full - plan to empty",
         icon: (
-          <AlertCircle className="w-4 h-4 text-amber-500" />
+          <AlertCircle className="w-4 h-4 text-warning" />
+        ),
+      };
+    if (level > 2)
+      return {
+        text: "Plenty of space available",
+        icon: (
+          <CheckCircle className="w-4 h-4 text-success" />
         ),
       };
     return {
-      text: "Plenty of space available",
+      text: "Bin is empty",
       icon: (
-        <CheckCircle className="w-4 h-4 text-emerald-500" />
+        <CheckCircle className="w-4 h-4 text-success" />
       ),
     };
   };
 
   // For consumables (dye, filter): lower percentage = worse (running out)
   const getConsumableStatusColor = (level: number) => {
-    if (level < 20) return "text-red-600";
-    if (level < 40) return "text-amber-600";
-    return "text-emerald-600";
+    if (level < 7.5) return "text-destructive";
+    if (level < 15) return "text-warning";
+    return "text-success";
   };
 
   const getConsumableProgressColor = (level: number) => {
-    if (level < 20) return "bg-red-500";
-    if (level < 40) return "bg-amber-500";
-    return "bg-emerald-500";
+    if (level < 7.5) return "bg-destructive";
+    if (level < 15) return "bg-warning";
+    return "bg-success";
   };
 
   const getDyeStatus = (level: number) => {
-    if (level < 20)
+    if (level < 1)
       return {
-        text: "Replace cartridge immediately",
-        icon: <AlertCircle className="w-4 h-4 text-red-500" />,
+        text: "Empty - Replace the cartridge before a new sample can be analysed",
+        icon: <AlertCircle className="w-4 h-4 text-destructive dark:text-destructive-400" />,
       };
-    if (level < 40)
+    if (level < 7.5)
       return {
-        text: "Order replacement cartridge",
+        text: "Replace the cartridge to maintain reliable results",
+        icon: <AlertCircle className="w-4 h-4 text-warning dark:text-warning-400" />,
+      };
+    if (level < 15)
+      return {
+        text: "Order a replacement cartridge",
         icon: (
-          <AlertCircle className="w-4 h-4 text-amber-500" />
+          <AlertCircle className="w-4 h-4 text-warning dark:text-warning-400" />
         ),
       };
     return {
       text: "Sufficient dye remaining",
       icon: (
-        <CheckCircle className="w-4 h-4 text-emerald-500" />
+        <CheckCircle className="w-4 h-4 text-success dark:text-success-400" />
       ),
     };
   };
 
   const getFilterStatus = (level: number) => {
-    if (level < 20)
+    if (level < 2)
       return {
-        text: "Replace filter roll now",
-        icon: <AlertCircle className="w-4 h-4 text-red-500" />,
+        text: "Empty - Replace the filter roll before a new sample can be analysed",
+        icon: <AlertCircle className="w-4 h-4 text-destructive dark:text-destructive-400" />,
       };
-    if (level < 40)
+    if (level < 7.5)
       return {
-        text: "Order new filter roll",
+        text: "Replace the filter roll now",
+        icon: <AlertCircle className="w-4 h-4 text-warning dark:text-warning-400" />,
+      };
+    if (level < 15)
+      return {
+        text: "Order a new filter roll",
         icon: (
-          <AlertCircle className="w-4 h-4 text-amber-500" />
+          <AlertCircle className="w-4 h-4 text-warning dark:text-warning-400" />
         ),
       };
     return {
       text: "Adequate filter paper supply",
       icon: (
-        <CheckCircle className="w-4 h-4 text-emerald-500" />
+        <CheckCircle className="w-4 h-4 text-success dark:text-success-400" />
       ),
     };
   };
@@ -133,15 +155,15 @@ export function DeviceHealthTab() {
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
             <div
-              className={`w-2 h-2 rounded-full ${deviceStatus.isConnected ? "bg-emerald-400" : "bg-red-400"}`}
+              className={`w-2 h-2 rounded-full ${deviceStatus.isConnected ? "bg-success" : "bg-destructive"}`}
             />
-            <span className="text-teal-100 text-sm">
+            <span className="text-primary-foreground/80 text-sm">
               {deviceStatus.isConnected
                 ? "Connected"
                 : "Disconnected"}
             </span>
           </div>
-          <span className="text-teal-100 text-sm">
+          <span className="text-primary-foreground/80 text-sm">
             • Last sync: {deviceStatus.lastSync}
           </span>
         </div>
@@ -149,7 +171,7 @@ export function DeviceHealthTab() {
 
       <div className="p-4 space-y-4 -mt-4">
         {/* Connection Status */}
-        <Card className="p-4 border-primary/10">
+        <Card className="p-4 border">
           <div className="flex items-center justify-between mb-4">
             <h3 className="flex items-center space-x-2">
               <Wifi className="w-5 h-5" />
@@ -157,14 +179,7 @@ export function DeviceHealthTab() {
             </h3>
             <Badge
               variant={
-                deviceStatus.isConnected
-                  ? "default"
-                  : "destructive"
-              }
-              className={
-                deviceStatus.isConnected
-                  ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                  : ""
+                deviceStatus.isConnected ? "success" : "destructive"
               }
             >
               {deviceStatus.isConnected ? "Online" : "Offline"}
@@ -188,11 +203,11 @@ export function DeviceHealthTab() {
         </Card>
 
         {/* Maintenance Alerts */}
-        {deviceStatus.wasteLevel > 70 &&
+        {deviceStatus.wasteLevel >= 98 &&
           !dismissedAlerts.has("waste-critical") && (
-            <Alert className="border-red-200 bg-red-50 relative">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700 pr-8">
+            <Alert className="relative border-destructive/20 bg-destructive/10 dark:border-destructive/40 dark:bg-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-destructive pr-8 dark:text-destructive">
                 Waste bin is nearly full and needs to be emptied
                 soon.
               </AlertDescription>
@@ -200,19 +215,19 @@ export function DeviceHealthTab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => dismissAlert("waste-critical")}
-                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-red-100"
+                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-destructive/20 dark:hover:bg-destructive/30"
               >
-                <X className="h-3 w-3 text-red-600" />
+                <X className="h-3 w-3 text-destructive" />
               </Button>
             </Alert>
           )}
 
-        {deviceStatus.wasteLevel > 50 &&
-          deviceStatus.wasteLevel <= 70 &&
+        {deviceStatus.wasteLevel > 75 &&
+          deviceStatus.wasteLevel < 98 &&
           !dismissedAlerts.has("waste-warning") && (
-            <Alert className="border-amber-200 bg-amber-50 relative">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-700 pr-8">
+            <Alert className="relative border-warning/20 bg-warning/10 dark:border-warning/40 dark:bg-warning/20">
+              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertDescription className="text-warning pr-8 dark:text-warning">
                 Waste bin is getting full. Plan to empty it
                 soon.
               </AlertDescription>
@@ -220,18 +235,18 @@ export function DeviceHealthTab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => dismissAlert("waste-warning")}
-                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-amber-100"
+                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-warning/20 dark:hover:bg-warning/30"
               >
-                <X className="h-3 w-3 text-amber-600" />
+                <X className="h-3 w-3 text-warning" />
               </Button>
             </Alert>
           )}
 
-        {deviceStatus.dyeLevel < 20 &&
+        {deviceStatus.dyeLevel <= 2 &&
           !dismissedAlerts.has("dye-critical") && (
-            <Alert className="border-red-200 bg-red-50 relative">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700 pr-8">
+            <Alert className="relative border-destructive/20 bg-destructive/10 dark:border-destructive/40 dark:bg-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-destructive pr-8 dark:text-destructive">
                 Dye level is critically low. Replace cartridge
                 immediately.
               </AlertDescription>
@@ -239,19 +254,19 @@ export function DeviceHealthTab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => dismissAlert("dye-critical")}
-                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-red-100"
+                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-destructive/20 dark:hover:bg-destructive/30"
               >
-                <X className="h-3 w-3 text-red-600" />
+                <X className="h-3 w-3 text-destructive" />
               </Button>
             </Alert>
           )}
 
-        {deviceStatus.dyeLevel < 40 &&
-          deviceStatus.dyeLevel >= 20 &&
+        {deviceStatus.dyeLevel < 15 &&
+          deviceStatus.dyeLevel > 2 &&
           !dismissedAlerts.has("dye-warning") && (
-            <Alert className="border-amber-200 bg-amber-50 relative">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-700 pr-8">
+            <Alert className="relative border-warning/20 bg-warning/10 dark:border-warning/40 dark:bg-warning/20">
+              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertDescription className="text-warning pr-8 dark:text-warning">
                 Dye level is low. Replace dye cartridge when
                 convenient.
               </AlertDescription>
@@ -259,18 +274,18 @@ export function DeviceHealthTab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => dismissAlert("dye-warning")}
-                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-amber-100"
+                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-warning/20 dark:hover:bg-warning/30"
               >
-                <X className="h-3 w-3 text-amber-600" />
+                <X className="h-3 w-3 text-warning" />
               </Button>
             </Alert>
           )}
 
-        {deviceStatus.filterPaper < 20 &&
+        {deviceStatus.filterPaper <= 2 &&
           !dismissedAlerts.has("filter-critical") && (
-            <Alert className="border-red-200 bg-red-50 relative">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700 pr-8">
+            <Alert className="relative border-destructive/20 bg-destructive/10 dark:border-destructive/40 dark:bg-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-destructive pr-8 dark:text-destructive">
                 Filter paper is critically low. Replace roll
                 immediately.
               </AlertDescription>
@@ -278,19 +293,19 @@ export function DeviceHealthTab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => dismissAlert("filter-critical")}
-                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-red-100"
+                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-destructive/20 dark:hover:bg-destructive/30"
               >
-                <X className="h-3 w-3 text-red-600" />
+                <X className="h-3 w-3 text-destructive" />
               </Button>
             </Alert>
           )}
 
-        {deviceStatus.filterPaper < 40 &&
-          deviceStatus.filterPaper >= 20 &&
+        {deviceStatus.filterPaper < 15 &&
+          deviceStatus.filterPaper > 2 &&
           !dismissedAlerts.has("filter-warning") && (
-            <Alert className="border-amber-200 bg-amber-50 relative">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-700 pr-8">
+            <Alert className="relative border-warning/20 bg-warning/10 dark:border-warning/40 dark:bg-warning/20">
+              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertDescription className="text-warning pr-8 dark:text-warning">
                 Filter paper roll is running low. Replace when
                 convenient.
               </AlertDescription>
@@ -298,15 +313,15 @@ export function DeviceHealthTab() {
                 variant="ghost"
                 size="sm"
                 onClick={() => dismissAlert("filter-warning")}
-                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-amber-100"
+                className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-warning/20 dark:hover:bg-warning/30"
               >
-                <X className="h-3 w-3 text-amber-600" />
+                <X className="h-3 w-3 text-warning" />
               </Button>
             </Alert>
           )}
 
         {/* Waste Bin */}
-        <Card className="p-4 border-primary/10">
+        <Card className="p-4 border">
           <div className="flex items-center justify-between mb-3">
             <h3 className="flex items-center space-x-2">
               <Trash2 className="w-5 h-5" />
@@ -336,7 +351,7 @@ export function DeviceHealthTab() {
         </Card>
 
         {/* Dye Level */}
-        <Card className="p-4 border-primary/10">
+        <Card className="p-4 border">
           <div className="flex items-center justify-between mb-3">
             <h3 className="flex items-center space-x-2">
               <Droplets className="w-5 h-5" />
@@ -366,7 +381,7 @@ export function DeviceHealthTab() {
         </Card>
 
         {/* Filter Paper */}
-        <Card className="p-4 border-primary/10">
+        <Card className="p-4 border">
           <div className="flex items-center justify-between mb-3">
             <h3 className="flex items-center space-x-2">
               <FileText className="w-5 h-5" />

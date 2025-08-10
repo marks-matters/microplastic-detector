@@ -191,7 +191,7 @@ export function AccountTab({ user, isLoggedIn, onLogout }: AccountTabProps) {
         <Card className="p-4">
           <div className="text-center text-sm text-muted-foreground">
             <p>MicroDetect v1.2.0</p>
-            <p>© 2024 Environmental Solutions Inc.</p>
+            <p>© 2025 Environmental Solutions Inc.</p>
           </div>
         </Card>
 
@@ -201,6 +201,7 @@ export function AccountTab({ user, isLoggedIn, onLogout }: AccountTabProps) {
             variant="outline" 
             onClick={onLogout}
             className="w-full text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+            aria-label="Sign out"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Sign Out

@@ -7,6 +7,7 @@
 }
 
 :root {
+  /* HSL channel variables consumed by tailwind config via hsl(var(--*)) */
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
@@ -19,75 +20,80 @@
   --secondary-foreground: 174 87% 26%;
   --muted: 204 100% 97%;
   --muted-foreground: 215.4 16.3% 46.9%;
-  --radius: 0.5rem;
-  --accent: #DCFCE7;
-  --accent-foreground: #15803D;
-  --destructive: #EF4444;
-  --destructive-foreground: #ffffff;
-  --border: rgba(15, 118, 110, 0.1);
-  --input: transparent;
+  --accent: 199 95% 94%;
+  --accent-foreground: 174 87% 26%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 174 87% 26%;
+  /* Status tokens */
+  --success: 160 84% 39%;
+  --success-foreground: 160 100% 97%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 48 100% 12%;
+  --info: 199 89% 48%;
+  --info-foreground: 199 100% 97%;
+
+  /* Non-HSL tokens (used directly in CSS, not via hsl()) */
   --input-background: #F8FAFC;
   --switch-background: #CBD5E1;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #0F766E;
   --chart-1: #0EA5E9;
   --chart-2: #16A34A;
   --chart-3: #F59E0B;
   --chart-4: #8B5CF6;
   --chart-5: #EF4444;
-  --radius: 0.625rem;
+  --radius: 0.5rem;
   --sidebar: #F8FAFC;
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-foreground: #0F172A;
   --sidebar-primary: #0F766E;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #E0F2FE;
   --sidebar-accent-foreground: #0F766E;
-  --sidebar-border: rgba(15, 118, 110, 0.1);
+  --sidebar-border: #E2E8F0;
   --sidebar-ring: #0F766E;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0F172A;
-    --foreground: #F8FAFC;
-    --card: #1E293B;
-    --card-foreground: #F8FAFC;
-    --popover: #1E293B;
-    --popover-foreground: #F8FAFC;
-    --primary: #14B8A6;
-    --primary-foreground: #0F172A;
-    --secondary: #1E293B;
-    --secondary-foreground: #94A3B8;
-    --muted: #334155;
-    --muted-foreground: #94A3B8;
-    --accent: #1E293B;
-    --accent-foreground: #22D3EE;
-    --destructive: #EF4444;
-    --destructive-foreground: #F8FAFC;
-    --border: #334155;
-    --input: #334155;
-    --ring: #14B8A6;
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
-    --text-2xl: 1.5rem;
-    --text-xl: 1.25rem;
-    --text-lg: 1.125rem;
-    --text-base: 1rem;
-    --chart-1: #22D3EE;
-    --chart-2: #4ADE80;
-    --chart-3: #FBBF24;
-    --chart-4: #A78BFA;
-    --chart-5: #F87171;
-    --sidebar: #1E293B;
-    --sidebar-foreground: #F8FAFC;
-    --sidebar-primary: #14B8A6;
-    --sidebar-primary-foreground: #0F172A;
-    --sidebar-accent: #334155;
-    --sidebar-accent-foreground: #94A3B8;
-    --sidebar-border: #334155;
-    --sidebar-ring: #14B8A6;
-  }
+.dark {
+  /* HSL channel variables consumed by tailwind config via hsl(var(--*)) */
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 174 87% 26%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 174 87% 26%;
+  /* Status tokens (tuned for dark) */
+  --success: 160 84% 45%;
+  --success-foreground: 160 100% 10%;
+  --warning: 38 92% 60%;
+  --warning-foreground: 38 100% 10%;
+  --info: 199 89% 60%;
+  --info-foreground: 199 100% 10%;
+
+  /* Non-HSL tokens */
+  --sidebar: #1E293B;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #14B8A6;
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #334155;
+  --sidebar-accent-foreground: #94A3B8;
+  --sidebar-border: #334155;
+  --sidebar-ring: #14B8A6;
 }
 
 @layer base {

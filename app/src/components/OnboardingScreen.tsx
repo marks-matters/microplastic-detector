@@ -41,7 +41,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white p-6">
+    <div className="min-h-screen flex flex-col bg-background p-6">
       <div className="flex-1 flex flex-col justify-center items-center max-w-md mx-auto">
         <div className="w-full mb-8">
           {/* Progress indicators */}
@@ -50,7 +50,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                  index === currentStep ? 'bg-primary' : 'bg-gray-300'
+                  index === currentStep ? 'bg-primary' : 'bg-muted'
                 }`}
               />
             ))}

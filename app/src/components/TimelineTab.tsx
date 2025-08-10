@@ -68,11 +68,16 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
   ]);
 
   const getRatingColor = (rating: string) => {
+    // Use theme tokens for consistent light/dark behavior
     switch (rating) {
-      case 'low': return 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100';
-      case 'medium': return 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100';
-      case 'high': return 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100';
+      case 'low':
+        return 'bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success-foreground/90 dark:border-success/30';
+      case 'medium':
+        return 'bg-warning/10 text-warning-foreground border-warning/20 dark:bg-warning/20 dark:text-warning-foreground/90 dark:border-warning/30';
+      case 'high':
+        return 'bg-destructive/10 text-destructive-foreground border-destructive/20 dark:bg-destructive/20 dark:text-destructive-foreground/90 dark:border-destructive/30';
+      default:
+        return 'bg-accent/20 text-foreground border-border/40 dark:bg-accent/10 dark:text-foreground/90 dark:border-border/30';
     }
   };
 
@@ -125,7 +130,7 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
             {measurement.image && (
               <div className="mb-3">
                 <ImageWithFallback
-                  src={`https://images.unsplash.com/photo-1569163139394-de4e4f43e4e3?w=300&h=200&fit=crop`}
+                  src={null} // Placeholder for image source
                   alt={measurement.image}
                   className="w-full h-32 object-cover rounded-md"
                 />
