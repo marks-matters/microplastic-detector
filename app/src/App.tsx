@@ -30,10 +30,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
-
-      <div className="bg-green-500 text-white p-4">
-        Tailwind is working!
-      </div>
       
       {currentScreen === 'onboarding' && (
         <OnboardingScreen onComplete={handleOnboardingComplete} />
