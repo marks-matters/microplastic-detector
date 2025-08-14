@@ -1,5 +1,27 @@
 # Microplastics Detection Protocol
 
+## Materials
+- **Tap water sample** (10 mL)
+- **Syringe** or pipette (≥10 mL capacity)
+- **Filter holder**
+- **Nylon membrane filter**, 47 mm diameter, 0.22 µm pore size
+- **Vacuum pump**, 5v
+- **Absolute ethanol** (≥96%)
+- **Nile Red powder**
+- **Amber vial**
+- **Micropipette** or syringe for 100 µL dispensing
+- **Raspberry Pi Camera 2**
+- **6 mm lens**
+- **Golden amber emission filter**
+- **LED ring with camera window** with 10 × green LEDs (560–568 nm) at ~45° and a camera slot
+- **N-MOSFET** (logic-level, e.g., IRLZ44N)
+- **Resistors** (150–220 Ω per LED, 220 Ω for MOSFET gate, 10 kΩ gate pull-down)
+- **5 V regulated supply** (e.g., Raspberry Pi 5 V rail)
+- **Petri dish**, 60 mm, for positioning membrane
+- **Computer or Raspberry Pi** with image capture and analysis software
+
+---
+
 ## 1. Sample Measurement
 - Measure **10 mL** of tap water using a clean syringe or pipette.  
 - No pretreatment (e.g., oxidation or digestion) is applied.
