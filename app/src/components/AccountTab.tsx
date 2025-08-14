@@ -38,8 +38,8 @@ export function AccountTab({ user, isLoggedIn, onLogout }: AccountTabProps) {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-white">{user.name}</p>
-              <p className="text-blue-100 text-sm">{user.email}</p>
+              <p className="text-primary-foreground">{user.name}</p>
+              <p className="text-primary-foreground text-sm">{user.email}</p>
             </div>
           </div>
         ) : (
@@ -50,8 +50,8 @@ export function AccountTab({ user, isLoggedIn, onLogout }: AccountTabProps) {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-white">Guest User</p>
-              <p className="text-blue-100 text-sm">Not signed in</p>
+              <p className="text-primary-foreground">Guest User</p>
+              <p className="text-primary-foreground text-sm">Not signed in</p>
             </div>
           </div>
         )}

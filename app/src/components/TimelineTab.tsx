@@ -85,7 +85,7 @@ export function TimelineTab({ isLoggedIn }: TimelineTabProps) {
       {/* Header */}
       <div className="bg-primary text-primary-foreground p-6 pb-8">
         <h1 className="text-white mb-2">MicroDetect Timeline</h1>
-        <p className="text-teal-100 text-sm">
+        <p className="text-primary-foreground text-sm">
           {isLoggedIn 
             ? 'Your measurements are contributing to our community database'
             : 'Sign in to share your data with the community'
