@@ -61,14 +61,20 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     # 50 is a common threshold for Saturation and Value to ensure we are detecting bright colors.
     # Values in experiment:
     #   Excitation source: LED GREEN DIFFUSED 3MM ROUND T/H with peak @ 560 nm
+    #   Excitation source: LED GREEN DIFFUSED 3MM ROUND T/H with peak @ 515 nm
     #   Emission filter LEE 134 Golden Amber: 580 nm long-pass filter
-    #   Nile Red: Ex: 510-550 nm; Em: 580-640 nm
+    #   Nile Red:       Ex: 510-550 nm; Em: 580-650 nm
+    #       Datasheet:  Ex: 515 nm;     Em: 585 nm
+    #       🇯🇵 study:   Ex: 450–490 nm; Em: 515–565 nm
+    #   Hydrophobic (non-polar) plastics, e.g. polyethylene (PE) & polypropylene (PP):  Em: 580-630 nm
+    #   Hydrophilic (polar) plastics, e.g. polystyrene (PS):                            Em: 631+ nm
     color_ranges = {
-        "deep_red": [(160, 50, 50), (179, 255, 255)],   # 650→621 nm
-        "red":      [(0, 50, 50), (10, 255, 255)],      # 620→590 nm
-        "orange":   [(11, 50, 50), (25, 255, 255)],     # 589→561 nm
-        # "yellow":   [(26, 50, 50), (35, 255, 255)],     # 560→511 nm
-        # "green":    [(36, 50, 50), (85, 255, 255)]      # 510→450 nm
+        "deep_red": [(340, 50, 50), (359, 255, 255)],   # (700, 661) nm
+        "red":      [(0, 50, 50), (22, 255, 255)],      # (660, 626) nm
+        "orange":   [(23, 50, 50), (51, 255, 255)],     # (625, 591) nm
+        "yellow":   [(52, 50, 50), (70, 255, 255)],     # (590, 566) nm
+        # "green":    [(71, 50, 50), (153, 255, 255)]      # (565, 500) nm
+        # "blue":     [(154, 50, 50), (179, 255, 255)]     # (500, 450) nm
     }
 
     # Create masks for each color range
@@ -86,9 +92,12 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
         mask = cv2.inRange(hsv, lower, upper)
         masks[name] = mask
         full_mask = cv2.bitwise_or(full_mask, mask)
-
+    
     # Deep red + red masks
-    reds_mask = cv2.bitwise_or(masks["deep_red"], masks["red"])
+    red_deep_red_mask = cv2.bitwise_or(masks["deep_red"], masks["red"])
+
+    # Orange mask
+    yellow_orange_mask = cv2.bitwise_or(masks["orange"], masks["yellow"])
 
     ''' Blur to reduce noise '''
     # Fluorescence images often have speckle noise or small bright pixels not related to microplastics.
@@ -99,11 +108,20 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     # cv2.GaussianBlur(src, ksize, sigmaX) applies a Gaussian blur to the image.
     #   src: source image
     #   ksize: size of the Gaussian kernel
-    #       An odd integer tuple, e.g., (5, 5)
+    #       An odd integer tuple, e.g., (5, 5).
     #       Determines the extent of blurring; larger values result in more blur.
     #       A kernel size of (5, 5) is a common choice for moderate blurring.
     #   sigmaX: standard deviation in the X direction (0 means it is calculated based on ksize)
-    blurred = cv2.GaussianBlur(full_mask, (5, 5), 0)
+    blurred = cv2.GaussianBlur(full_mask, (3, 3), 0)
+
+    ''' Bilateral filter to preserve edges '''
+    # The bilateral filter smooths the image while preserving edges, making it useful for fluorescence images.
+    # cv2.bilateralFilter(src, d, sigmaColor, sigmaSpace) applies a bilateral filter to the image.
+    #   src: source image
+    #   d: diameter of the pixel neighborhood used during filtering (must be odd)
+    #   sigmaColor: filter sigma in color space (larger values mean more colors will be mixed)
+    #   sigmaSpace: filter sigma in coordinate space (larger values mean farther pixels will influence each other)
+    bilateral_filtered = cv2.bilateralFilter(full_mask, d=3, sigmaColor=75, sigmaSpace=75)
 
     ''' Threshold (Otsu’s method) '''
     # Otsu's method automatically determines a threshold value to separate foreground from background.
@@ -159,32 +177,40 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
         #   thickness: thickness of the contour lines in pixels
         contour_img = image.copy()
         cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 1)
-        
-        # Create a 2x3 grid of subplots
-        fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+
+        # Create a 2x4 grid of subplots
+        fig, axes = plt.subplots(2, 4, figsize=(16, 10))
         axes[0, 0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         axes[0, 0].set_title("Original image")
         axes[0, 0].axis('off')
 
-        axes[0, 1].imshow(reds_mask, cmap='gray')
-        axes[0, 1].set_title("Red channels")
+        axes[0, 1].imshow(red_deep_red_mask, cmap='gray')
+        axes[0, 1].set_title("Red/deep red channels")
         axes[0, 1].axis('off')
 
-        axes[0, 2].imshow(full_mask, cmap='gray')
-        axes[0, 2].set_title("All filter channels")
+        axes[0, 2].imshow(yellow_orange_mask, cmap='gray')
+        axes[0, 2].set_title("Yellow/orange channels")
         axes[0, 2].axis('off')
+
+        axes[0, 3].imshow(full_mask, cmap='gray')
+        axes[0, 3].set_title("Combined mask")
+        axes[0, 3].axis('off')
 
         axes[1, 0].imshow(blurred, cmap='gray')
         axes[1, 0].set_title("Blurred image")
         axes[1, 0].axis('off')
 
-        axes[1, 1].imshow(cleaned, cmap='gray')
-        axes[1, 1].set_title("Cleaned image")
+        axes[1, 1].imshow(bilateral_filtered, cmap='gray')
+        axes[1, 1].set_title("Bilateral filter")
         axes[1, 1].axis('off')
 
-        axes[1, 2].imshow(cv2.cvtColor(contour_img, cv2.COLOR_BGR2RGB))
-        axes[1, 2].set_title("Contours detected")
+        axes[1, 2].imshow(cleaned, cmap='gray')
+        axes[1, 2].set_title("Cleaned image")
         axes[1, 2].axis('off')
+
+        axes[1, 3].imshow(cv2.cvtColor(contour_img, cv2.COLOR_BGR2RGB))
+        axes[1, 3].set_title("Contours detected")
+        axes[1, 3].axis('off')
 
         plt.suptitle(f"Detected particles: {count} → Category: {category}", fontsize=14)
         plt.tight_layout()

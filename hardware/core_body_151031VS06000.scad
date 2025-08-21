@@ -10,9 +10,26 @@ $fn = 100;
 
 screw_resolution = 0.5;  // in mm
 
+wall_thickness = 3;
+
+// Petri dish / membrane holder
+petri_inner_diameter = 67;
+
 // Legs
 leg_diameter = 6;
-leg_height = 60;
+
+// Adjustable parameters
+inner_diameter = 58;
+outer_diameter = petri_inner_diameter + 2*wall_thickness + leg_diameter*2 + 1.4;
+led_radius = (inner_diameter + (outer_diameter-inner_diameter)/1.082)/2;
+led_hole_diameter = 3.2;
+led_tilt = 45;
+led_count = 10;
+
+// Camera
+camera_case_protrution = 9;
+camera_slot_width = 30.8;
+lens_protrution = 13+2;
 
 // Provides standard metric thread pitches.
 function ThreadPitch(diameter) =
@@ -212,24 +229,80 @@ module ScrewThread(outer_diam, height, pitch=0, tooth_angle=30, tolerance=0.4, t
   ClosePoints(pointarrays);
 }
 
-// Solid rod on the bottom, external threads on the top.
-module RodStart(height, diameter, thread_len=0, thread_diam=0, thread_pitch=0) {
+
+
+// This creates a threaded hole in its children using metric standards by
+// default.
+module ScrewHole(outer_diam, height, position=[0,0,0], rotation=[0,0,0], pitch=0, tooth_angle=30, tolerance=0.4, tooth_height=0) {
+  extra_height = 0.001 * height;
+
+  translate(position)
+    rotate(rotation)
+    translate([0, 0, -extra_height/2])
+    ScrewThread(1.01*outer_diam + 1.25*tolerance, height + extra_height,
+      pitch, tooth_angle, tolerance, tooth_height=tooth_height);
+}
+
+
+// Solid rod on the bottom, internal threads on the top.
+// Flips around x-axis after printing to pair with RodStart.
+module screw_recess(height, diameter, thread_len=0, thread_diam=0, thread_pitch=0) {
   // A reasonable default.
   thread_diam = (thread_diam==0) ? 0.75*diameter : thread_diam;
   thread_len = (thread_len==0) ? 0.5*diameter : thread_len;
   thread_pitch = (thread_pitch==0) ? ThreadPitch(thread_diam) : thread_pitch;
 
-  cylinder(r=diameter/2, h=height, $fn=24*diameter);
-
-  translate([0, 0, height])
-    ScrewThread(thread_diam, thread_len, thread_pitch,
-      tip_height=thread_pitch, tip_min_fract=0.75);
+  ScrewHole(thread_diam, thread_len, [0, 0, height], [0,0,0], thread_pitch);
 }
 
-// Legs
-module leg() {
-  RodStart(leg_height, leg_diameter);
+
+module base() {
+  union() {
+    cylinder(h=wall_thickness, d=outer_diameter);
+    translate([2,0,-0.5*camera_case_protrution])
+      cube([camera_slot_width+2*wall_thickness,camera_slot_width+2*wall_thickness,camera_case_protrution], center = true);
+  }
+}
+
+// Leg recesses
+module leg_recesses() {
+  for (i = [0:led_count/2]) {
+    angle = i * 360 / (led_count/2)+17.5;
+    rotate([0,0,angle])
+      translate([outer_diameter/2-leg_diameter/2-2,0,0])
+        screw_recess(0, leg_diameter, thread_len=wall_thickness);
+  }
+}
+
+module camera_slot() {
+  // 12mm from top, 16mm from bottom, 30.4 across
+  // 12mm tall, wtih 3mm of base, exposes 9mm of case
+  translate([2,0,-0.5*(camera_case_protrution-wall_thickness)])
+    cube([camera_slot_width,camera_slot_width,camera_case_protrution+wall_thickness], center = true);
+}
+
+// LED ring with tilted through-holes
+module led_ring() {
+    for (i = [0:led_count-1]) {
+    angle = i * 360 / led_count;
+    rotate([0,0,angle]) translate([led_radius,0,-1.2])
+      rotate([0,315,0])
+        cylinder(h=5, d=led_hole_diameter);
+    rotate([0,0,angle]) translate([led_radius-2.9,0,1.7])
+      rotate([0,315,0])
+        cylinder(h=7.4, d1=3.2, d2=11);
+  }
+}
+
+//
+module core() {
+  difference() {
+    base();
+    led_ring();
+    camera_slot();
+    leg_recesses();
+  }
 }
 
 // Render
-leg();
+core();

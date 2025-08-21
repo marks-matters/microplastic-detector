@@ -1,7 +1,8 @@
 $fn=100;
 
-led_count = 10;
-led_radius = 32;
+led_count = 5;
+led_radius = 30;
+led_view_angle = 50; // degrees
 led_hole_diameter = 3.2;
 ring_thickness = 3;
 leg_height = 60;  // sample plane roughly at Z=60
@@ -27,21 +28,23 @@ module led_ring_with_tilt(tilt_angle, x_offset) {
                             cylinder(h=10, d=led_hole_diameter);
             }
         }
-
-    // Show beam path for a single LED to illustrate intersection
-    rotate([0,0,0])
-        translate([x_offset+led_radius,0,0])
-            rotate([0,tilt_angle,0])
-                color("lightgreen",0.5)
-                    beam_cone(60, 90);  // approximate beam with LED viewing angle
+        for (j = [0:led_count-1]) {
+            beam_angle = j * 360 / led_count;
+            rotate([0,0,beam_angle])
+                rotate([0,0,0])
+                    translate([x_offset+led_radius,0,0])
+                        rotate([0,tilt_angle,0])
+                            color("lightgreen",0.5)
+                                beam_cone(led_view_angle/2, 78);  // approximate beam with LED viewing angle
+        }
 }
 
 // Compose the three comparisons
-led_ring_with_tilt(28, -200);
-led_ring_with_tilt(40, 0);
-led_ring_with_tilt(45, 200);
+led_ring_with_tilt(30, -200);
+led_ring_with_tilt(32, 0);
+led_ring_with_tilt(34, 200);
 
 // Draw the membrane plane at Z=60
 color("blue",0.3)
-    translate([-300,-40,-60])
-        cube([600,80,0.5]);
+    translate([-300,-25,-60])
+        cube([600,50,0.5]);

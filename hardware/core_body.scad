@@ -17,14 +17,17 @@ petri_inner_diameter = 67;
 
 // Legs
 leg_diameter = 6;
+leg_count = 4;
 
 // Adjustable parameters
 inner_diameter = 58;
 outer_diameter = petri_inner_diameter + 2*wall_thickness + leg_diameter*2 + 1.4;
-led_radius = (inner_diameter + (outer_diameter-inner_diameter)/1.082)/2;
+
+// LEDS
 led_hole_diameter = 3.2;
-led_tilt = 45;
-led_count = 10;
+led_tilt = 30;
+led_count = 5;
+led_radius = (inner_diameter + (outer_diameter-inner_diameter)/1.082)/2;
 
 // Camera
 camera_case_protrution = 9;
@@ -266,8 +269,8 @@ module base() {
 
 // Leg recesses
 module leg_recesses() {
-  for (i = [0:led_count/2]) {
-    angle = i * 360 / (led_count/2)+17.5;
+  for (i = [0:leg_count]) {
+    angle = i * 360 / leg_count + 27;
     rotate([0,0,angle])
       translate([outer_diameter/2-leg_diameter/2-2,0,0])
         screw_recess(0, leg_diameter, thread_len=wall_thickness);
