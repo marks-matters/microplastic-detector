@@ -60,7 +60,6 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     #   V: Value of 0-255 (brightness)
     # 50 is a common threshold for Saturation and Value to ensure we are detecting bright colors.
     # Values in experiment:
-    #   Excitation source: LED GREEN DIFFUSED 3MM ROUND T/H with peak @ 560 nm
     #   Excitation source: LED GREEN DIFFUSED 3MM ROUND T/H with peak @ 515 nm
     #   Emission filter LEE 134 Golden Amber: 580 nm long-pass filter
     #   Nile Red:       Ex: 510-550 nm; Em: 580-650 nm

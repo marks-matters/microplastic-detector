@@ -13,6 +13,7 @@ def capture_image(
     awb: str | None = None,
     awbgains: str | None = None,
 ):
+    
     """
     Capture an image using libcamera-still with optional manual controls.
 
@@ -33,6 +34,7 @@ def capture_image(
     Raises:
         RuntimeError: If image capture fails.
     """
+
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     image_path = f"{output_dir}/sample_{timestamp}.jpg"
