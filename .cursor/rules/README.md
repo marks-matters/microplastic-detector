@@ -5,11 +5,16 @@ This directory contains automated rules for maintaining documentation consistenc
 ## Rule Files
 
 ### Core Organization Rules
-- **`file-organization.mdc`**: File naming conventions, directory structure standards, and project organization guidelines
-- **`documentation-triggers.mdc`**: Broad triggers for documentation updates when workspace changes occur
-- **`readme-consistency.mdc`**: Specific rules for keeping README.md accurate with project structure
-- **`ai-instructions-consistency.mdc`**: Rules for maintaining AI guidance consistency with code changes
-- **`documentation-meta-update.mdc`**: Meta-rules for updating documentation standards themselves
+```
+.cursor/rules/
+├── README.md                           # This file
+├── ai-instructions-consistency.mdc     # Rules for maintaining AI guidance consistency with code changes
+├── documentation-meta-update.mdc       # Meta-rules for updating documentation standards themselves
+├── documentation-triggers.mdc          # Broad triggers for documentation updates when workspace changes occur
+├── file-organization.mdc               # File naming conventions, directory structure standards, and project organization guidelines
+├── readme-consistency.mdc              # Specific rules for keeping README.md accurate with project structure
+└── [additional-rule-files].mdc         # Other rule files
+```
 
 ## How These Rules Work
 
