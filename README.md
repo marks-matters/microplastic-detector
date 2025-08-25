@@ -196,7 +196,32 @@ sudo scp admin@microplastics-ui.local:/home/admin/mp-proj/captures/sample_202508
 2. Create your feature branch
 3. Make your changes
 4. Run the test suite to ensure everything works
-5. Submit a pull request
+5. Update documentation if needed (see Documentation section below)
+6. Submit a pull request
+
+## Documentation
+
+This project includes automated documentation update triggers. When making changes to core functionality, please ensure documentation stays current:
+
+### Files that may need updates:
+- **README.md**: User-facing documentation, API examples, setup instructions
+- **.github/instructions/microplastic-detector.instructions.md**: AI agent guidance and contracts
+- **.cursor/rules/**: Documentation standards and automated update triggers
+
+### Common update triggers:
+- Function signature changes → Update README examples and AI contracts
+- New dependencies → Update setup instructions
+- New features → Document usage examples and workflows
+- Directory structure changes → Update file listings and references
+- Test structure changes → Update testing documentation
+
+The repository includes automated rules in `.cursor/rules/` that will suggest documentation updates when relevant changes are detected. These rules include:
+
+- **File organization standards**: Naming conventions and structure guidelines
+- **Documentation triggers**: Broad change detection for documentation updates
+- **README consistency**: Specific checks for README accuracy
+- **AI instructions consistency**: Maintains AI guidance accuracy
+- **Meta-update rules**: Self-referential updates for documentation standards
 
 ## License
 

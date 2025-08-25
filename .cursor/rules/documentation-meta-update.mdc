@@ -1,0 +1,42 @@
+---
+description: Documentation Standards Self-Update
+globs: 
+alwaysApply: false
+---
+# Documentation Standards Self-Update
+
+Meta-rules for triggering updates when documentation standards themselves change.
+
+<rule>
+name: documentation_standards_self_update
+description: Trigger updates when documentation standards themselves change
+filters:
+  # Changes to documentation standards
+  - type: file_extension
+    pattern: "\\.cursor/rules/.*\\.mdc"
+  # Changes to AI instructions
+  - type: file_extension
+    pattern: "\\.github/instructions/.*\\.instructions\\.md"
+
+actions:
+  - type: suggest
+    message: |
+      Documentation Meta-Update Required:
+
+      Changes to documentation standards or AI instructions detected.
+
+      **Review and update:**
+      - Ensure all documentation files reference current standards
+      - Update any examples or templates that reference changed rules
+      - Verify trigger patterns match current project structure
+      - Check that priority levels and versioning are consistent
+
+      **Files to review:**
+      - All documentation files that reference these standards
+      - README.md sections about contributing and documentation
+      - Any templates or examples that use these patterns
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

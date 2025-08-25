@@ -1,0 +1,50 @@
+---
+description: AI Instructions Consistency
+globs: 
+alwaysApply: false
+---
+# AI Instructions Consistency
+
+Rules to ensure AI instructions stay current with workspace changes and maintain accurate contracts.
+
+<rule>
+name: ai_instructions_consistency
+description: Ensure AI instructions stay current with workspace changes
+filters:
+  # Core API changes that affect AI contracts
+- type: file_extension
+    pattern: "software/.*\\.py"
+  # Test changes that affect workflows
+  - type: file_extension
+    pattern: "tests/.*\\.py"
+  # Dependency changes that affect environment setup
+  - type: file_extension
+    pattern: "(requirements\\.txt|package\\.json)"
+  # Documentation structure changes
+  - type: file_extension
+    pattern: "(README\\.md|\\.github/instructions/.*\\.md)"
+
+actions:
+  - type: suggest
+    message: |
+      AI Instructions Update Required:
+
+      Changes detected that may affect AI guidance in microplastic-detector.instructions.md:
+
+      **Update these sections:**
+      - Contracts: Function signatures, parameters, return values, validations
+      - Dev workflows: Command examples, test patterns
+      - Integration: Dependencies, environment requirements
+      - Pointers: File locations, directory structure
+
+      **Specific checks:**
+      - Function signatures match current implementation
+      - Parameter defaults and validation rules are accurate
+      - File paths and directory references are current
+      - Test commands and patterns are up-to-date
+      - Dependencies and setup instructions are current
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

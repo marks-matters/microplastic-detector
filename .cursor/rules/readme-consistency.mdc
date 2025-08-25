@@ -1,0 +1,48 @@
+---
+description: README Consistency Checks
+globs: 
+alwaysApply: false
+---
+# README Consistency Checks
+
+Rules to ensure README stays consistent with actual project structure and functionality.
+
+<rule>
+name: readme_consistency_check
+description: Ensure README stays consistent with actual project structure
+filters:
+  # Core changes that affect README
+  - type: file_extension
+    pattern: "(software/main\\.py|software/analyze_microplastics\\.py|software/capture_image\\.py)"
+  # Setup/config changes
+  - type: file_extension
+    pattern: "(requirements\\.txt|package\\.json)"
+  # Directory structure changes
+  - type: event
+    pattern: "(directory_create|file_move)"
+
+actions:
+  - type: suggest
+    message: |
+      README Update Required:
+
+      Changes detected that may affect README.md accuracy:
+
+      **Check these sections:**
+      - Usage examples and function signatures
+      - Setup instructions and dependencies
+      - Directory structure listing
+      - Command examples and scripts
+      - Prerequisites and version requirements
+
+      **Common updates needed:**
+      - Function parameter lists
+      - Installation commands
+      - File paths and directory names
+      - Example code snippets
+      - Version numbers
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

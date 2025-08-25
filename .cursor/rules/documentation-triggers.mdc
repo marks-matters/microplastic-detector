@@ -1,0 +1,64 @@
+---
+description: Documentation Update Triggers
+globs: 
+alwaysApply: false
+---
+# Documentation Update Triggers
+
+Rules for triggering documentation updates when relevant workspace changes occur.
+
+<rule>
+name: documentation_update_triggers
+description: Trigger documentation updates when relevant workspace changes occur
+filters:
+  # Core software changes
+  - type: file_extension
+    pattern: "software/.*\\.py"
+  # Configuration changes
+  - type: file_extension
+    pattern: "(requirements\\.txt|package\\.json|.*\\.config\\.(js|ts|mjs))"
+  # Hardware/protocol changes
+  - type: file_extension
+    pattern: "(hardware/.*|protocols/.*)"
+  # Test structure changes
+  - type: file_extension
+    pattern: "tests/.*\\.py"
+  # New directories or major restructuring
+  - type: event
+    pattern: "directory_create"
+
+actions:
+  - type: suggest
+    message: |
+      Workspace Change Detected - Documentation Update Required:
+
+      When making changes to core functionality, please ensure documentation stays current:
+
+      1. **API/Function Changes**:
+         - Update function signatures in README.md
+         - Update AI instructions with new contracts
+         - Update parameter descriptions and examples
+
+      2. **New Features**:
+         - Add usage examples to README.md
+         - Update AI instructions with new workflows
+         - Document new dependencies or setup steps
+
+      3. **Structural Changes**:
+         - Update directory structure in README.md
+         - Update AI instructions with new file locations
+         - Update any affected setup instructions
+
+      4. **Configuration Changes**:
+         - Update setup instructions in README.md
+         - Update AI instructions with new environment requirements
+         - Document new scripts or commands
+
+      Files to potentially update:
+      - README.md (user-facing documentation)
+      - .github/instructions/microplastic-detector.instructions.md (AI guidance)
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
