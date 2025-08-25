@@ -11,11 +11,11 @@
 - **Nile Red powder**
 - **2 x amber vials** for stock and working solutions
 - **Micropipette** for 100 µL dispensing
-- **Raspberry Pi Camera 2**
+- **Raspberry Pi Camera 2** with lense manually turned to desired focal distance
 - **6 mm macro lens**
-- **LEE #134 Golden Amber emission filter**
+- **LEE Lee No. 105 Orange (~560 nm) long-pass emission filter**
 - **LED ring with camera window and leg threads**, the 10 x LED slots angled inwards at 45° and 5 x leg threads
-- **10 x green LED lights** with a wavelength of 560–568 nm (peak at 565nm) and a viewing angle of 50°
+- **10 x green LED lights** with a wavelength of 485–545 nm (peak at 515 nm) and a viewing angle of 50°
 - **5 x 60 mm legs** with screw thread
 - **Light shield** to block out light during florencence and imaging
 - **N-MOSFET**, logic-level
@@ -58,8 +58,8 @@
 
 ## 5. Imaging Setup
 - Use a **Raspberry Pi Camera 2** with an attached **6 mm lens** at **60 mm distance** from the membrane.
-- **Emission filter** (Golden Amber) placed behind the lens.
-- **10 green LEDs** (560–568 nm) mounted in parallel, with 220 Ω resistors, at ~45° around membrane.
+- **Emission filter** (Orange) placed behind the lens.
+- **10 green LEDs** (515 nm) mounted in parallel, with 220 Ω resistors, at ~45° around membrane.
 - LEDs powered from 5 V rail, switched by N-MOSFET from Pi GPIO.
 - LEDs on during capture; camera uses long exposure.
 

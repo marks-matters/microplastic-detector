@@ -1,29 +1,18 @@
+// Created 2016-2017 by Ryan A. Colyer.
+// This work is released with CC0 into the public domain.
+// https://creativecommons.org/publicdomain/zero/1.0/
+//
+// https://www.thingiverse.com/thing:1686322
+//
+// v2.1
+
 $fn = 100;
 
 screw_resolution = 0.5;  // in mm
 
-wall_thickness = 3;
-
-// Petri dish / membrane holder
-petri_diameter = 54;
-
 // Legs
 leg_diameter = 6;
-leg_count = 5;
-
-// Adjustable parameters
-outer_diameter = petri_diameter + 2*(wall_thickness + leg_diameter + 1);
-
-// LEDS
-led_hole_diameter = 2.84;
-led_tilt = 40;
-led_count = 5;
-led_radius = outer_diameter/2;
-
-// Camera
-camera_case_protrution = 9;
-camera_slot_width = 30.8;
-lens_protrution = 13+2;
+leg_height = 62;
 
 // Provides standard metric thread pitches.
 function ThreadPitch(diameter) =
@@ -223,98 +212,24 @@ module ScrewThread(outer_diam, height, pitch=0, tooth_angle=30, tolerance=0.4, t
   ClosePoints(pointarrays);
 }
 
-
-
-// This creates a threaded hole in its children using metric standards by
-// default.
-module ScrewHole(outer_diam, height, position=[0,0,0], rotation=[0,0,0], pitch=0, tooth_angle=30, tolerance=0.4, tooth_height=0) {
-  extra_height = 0.001 * height;
-
-  translate(position)
-    rotate(rotation)
-    translate([0, 0, -extra_height/2])
-    ScrewThread(1.01*outer_diam + 1.25*tolerance, height + extra_height,
-      pitch, tooth_angle, tolerance, tooth_height=tooth_height);
-}
-
-
-// Solid rod on the bottom, internal threads on the top.
-// Flips around x-axis after printing to pair with RodStart.
-module screw_recess(height, diameter, thread_len=0, thread_diam=0, thread_pitch=0) {
+// Solid rod on the bottom, external threads on the top.
+module RodStart(height, diameter, thread_len=0, thread_diam=0, thread_pitch=0) {
   // A reasonable default.
   thread_diam = (thread_diam==0) ? 0.75*diameter : thread_diam;
   thread_len = (thread_len==0) ? 0.5*diameter : thread_len;
   thread_pitch = (thread_pitch==0) ? ThreadPitch(thread_diam) : thread_pitch;
 
-  ScrewHole(thread_diam, thread_len, [0, 0, height], [0,0,0], thread_pitch);
+  cylinder(r=diameter/2, h=height, $fn=24*diameter);
+
+  translate([0, 0, height])
+    ScrewThread(thread_diam, thread_len, thread_pitch,
+      tip_height=thread_pitch, tip_min_fract=0.75);
 }
 
-
-module base() {
-  union() {
-    cylinder(h=wall_thickness, d=outer_diameter);
-    translate([2,0,-0.5*camera_case_protrution])
-      cube([camera_slot_width+2*wall_thickness,camera_slot_width+2*wall_thickness,camera_case_protrution], center = true);
-  }
-}
-
-// Leg recesses
-module leg_recesses() {
-  for (i = [0:leg_count]) {
-    angle = i * 360 / leg_count + 36;
-    rotate([0,0,angle])
-      translate([(petri_diameter)/2 + leg_diameter + 1,0,0])
-        screw_recess(0, leg_diameter, thread_len=wall_thickness);
-  }
-}
-
-module camera_slot() {
-  // 12mm from top, 16mm from bottom, 30.4 across
-  // 12mm tall, wtih 3mm of base, exposes 9mm of case
-  translate([2,0,-0.5*(camera_case_protrution-wall_thickness)])
-    cube([camera_slot_width,camera_slot_width,camera_case_protrution+wall_thickness], center = true);
-}
-
-// LED ring with tilted through-holes
-module led_ring() {
-    for (i = [0:led_count-1]) {
-    angle = i * 360 / led_count;
-    rotate([0,0,angle]) translate([led_radius,0,-2.22])
-      rotate([0,-led_tilt,0])
-        cylinder(h=5, d=led_hole_diameter);
-    rotate([0,0,angle]) translate([led_radius-2.9,0,1.1])
-      rotate([0,-led_tilt+(led_tilt/2),0])
-        cylinder(h=6.4, d1=2.84, d2=12);
-  }
-}
-
-module etching() {
-  union() {
-      translate([24, -5.5, -0.1])
-        linear_extrude(height = 0.6)
-          rotate([180,0,90])
-            text("TOP", size = 4);
-      translate([-24, -7, -0.1])
-        linear_extrude(height = 0.6)
-          rotate([180,0,90])
-            text("v2_250824", size = 2);
-  }
-  translate([24, -5.5, -0.1])
-    linear_extrude(height = 1)
-      rotate([180,0,90])
-        text("TOP", size = 4);
-}
-
-
-module core() {
-  difference() {
-    base();
-    led_ring();
-    camera_slot();
-    leg_recesses();
-    etching();
-  }
+// Legs
+module leg() {
+  RodStart(leg_height, leg_diameter);
 }
 
 // Render
-core();
+leg();

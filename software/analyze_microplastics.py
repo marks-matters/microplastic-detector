@@ -61,7 +61,7 @@ def analyze_microplastics(image_path, min_area=10, max_area=5000, low_thresh=10,
     # 50 is a common threshold for Saturation and Value to ensure we are detecting bright colors.
     # Values in experiment:
     #   Excitation source: LED GREEN DIFFUSED 3MM ROUND T/H with peak @ 515 nm
-    #   Emission filter LEE 134 Golden Amber: 580 nm long-pass filter
+    #   Emission filter Lee No. 105 Orange: 560 nm long-pass filter
     #   Nile Red:       Ex: 510-550 nm; Em: 580-650 nm
     #       Datasheet:  Ex: 515 nm;     Em: 585 nm
     #       🇯🇵 study:   Ex: 450–490 nm; Em: 515–565 nm
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--show_image_processing",
         action="store_true",
-        help="Disable the display of matplotlib visualization"
+        help="Show image processing steps in a plot"
     )
     parser.add_argument(
         "--image_path",

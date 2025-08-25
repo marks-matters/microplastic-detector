@@ -12,7 +12,7 @@ screw_resolution = 0.5;  // in mm
 
 // Legs
 leg_diameter = 6;
-leg_height = 100;
+leg_height = 64;
 
 // Provides standard metric thread pitches.
 function ThreadPitch(diameter) =
