@@ -15,7 +15,7 @@ leg_count = 5;
 outer_diameter = petri_diameter + 2*(wall_thickness + leg_diameter + 1);
 
 // LEDS
-led_hole_diameter = 2.84;
+led_hole_diameter = 3;
 led_tilt = 40;
 led_count = 5;
 led_radius = outer_diameter/2;
@@ -279,12 +279,12 @@ module camera_slot() {
 module led_ring() {
     for (i = [0:led_count-1]) {
     angle = i * 360 / led_count;
-    rotate([0,0,angle]) translate([led_radius,0,-2.22])
+    rotate([0,0,angle]) translate([led_radius,0,-2.35])
       rotate([0,-led_tilt,0])
         cylinder(h=5, d=led_hole_diameter);
-    rotate([0,0,angle]) translate([led_radius-2.9,0,1.1])
+    rotate([0,0,angle]) translate([led_radius-2.9,0,1])
       rotate([0,-led_tilt+(led_tilt/2),0])
-        cylinder(h=6.4, d1=2.84, d2=12);
+        cylinder(h=6.4, d1=led_hole_diameter, d2=12);
   }
 }
 
